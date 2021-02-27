@@ -16,13 +16,19 @@ class WaqiLinkDisplay extends StatelessWidget {
           ? new InkWell(
               child: new Text('More detailed information can be found here',
                   style: TextStyle(
+                      fontSize: 18,
                       decoration: TextDecoration.underline,
                       color: Colors.blue)),
               //https://waqi.info/#/c/47.947/22.554/9z
-              onTap: () => launch('https://waqi.info/#/c/'+latitude+'/'+longitude+'/9z'))
+              onTap: () => launch('https://waqi.info/#/c/' +
+                  latitude +
+                  '/' +
+                  longitude +
+                  '/9z'))
           : new InkWell(
               child: new Text('More detailed information can be found here',
                   style: TextStyle(
+                      fontSize: 18,
                       decoration: TextDecoration.underline,
                       color: Colors.blue)),
               onTap: () => launch('https://waqi.info/')),

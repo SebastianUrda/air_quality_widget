@@ -1,5 +1,6 @@
 package com.example.flutter_air_quality_widget;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -37,33 +38,40 @@ public class UpdatingJobIntentService extends JobIntentService {
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
         // Construct the RemoteViews object.
-        Log.d(TAG, "I will set it to Shared Preferences");
+        Log.d(TAG, "I will update the widget");
         RetrofitRequest retrofitRequest = new RetrofitRequest(getApplicationContext());
         retrofitRequest.getAirQualityIndex();
-
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "Job Execution Finished");
         String dateStringDefault =
                 DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date());
         SharedPreferences sharedPreferences = getSharedPreferences(SharedPreferencesFileName, Context.MODE_PRIVATE);
         String airQualityIndex = sharedPreferences.getString("airQualityIndex", "error");
+        RemoteViews views = new RemoteViews(getPackageName(),
+                R.layout.air_quality_widget);
         if (!airQualityIndex.equals("error") && !airQualityIndex.isEmpty()) {
-            RemoteViews views = new RemoteViews(getPackageName(),
-                    R.layout.air_quality_widget);
+
             String colour = getColourBasedOnIndex(airQualityIndex);
             views.setTextColor(R.id.air_quality_index, Color.parseColor(colour));
             views.setTextViewText(R.id.air_quality_index,
                     airQualityIndex);
-            ComponentName theWidget = new ComponentName(this, AirQualityWidget.class);
-            AppWidgetManager manager = AppWidgetManager.getInstance(this);
-            manager.updateAppWidget(theWidget, views);
             Log.d(TAG, "All set");
         }
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        // In widget we are not allowing to use intents as usually. We have to use PendingIntent instead of 'startActivity'
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+        // Here the basic operations the remote view can do.
+        views.setOnClickPendingIntent(R.id.section_id, pendingIntent);
+        // Instruct the widget manager to update the widget.
+        ComponentName theWidget = new ComponentName(this, AirQualityWidget.class);
+        AppWidgetManager manager = AppWidgetManager.getInstance(this);
+        manager.updateAppWidget(theWidget, views);
+        Log.d(TAG, "Job Execution Finished");
+
     }
 
     private static String getColourBasedOnIndex(String indexString) {
@@ -81,5 +89,4 @@ public class UpdatingJobIntentService extends JobIntentService {
         else if (index <= 250) return VERY_UNHEALTHY;
         else return HAZARDOUS;
     }
-
 }

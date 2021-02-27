@@ -1,34 +1,36 @@
 import 'dart:core';
+import 'dart:ui';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_air_quality_widget/api_data_display.dart';
+import 'package:flutter_air_quality_widget/location_service_handling.dart';
+import 'package:flutter_air_quality_widget/questionnaire_type.dart';
+import 'package:flutter_air_quality_widget/register.dart';
 import 'package:flutter_air_quality_widget/table_with_legend.dart';
 
 import 'api.dart';
-import 'data_source_display.dart';
+import 'models/user_data.dart' as UserData;
 
-main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: MyHomePage(title: 'Air Quality Index Application '),
-    );
-  }
+main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  String authenticationUID = await Api.getCurrentUserUIDOrLoginAnonymously();
+  runApp(MaterialApp(
+    title: 'Air Quality Index Application',
+    theme: ThemeData(
+      primarySwatch: Colors.blue,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+    ),
+    home: MyHomePage(
+        title: 'Air Quality Index Application', userUID: authenticationUID),
+  ));
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key key, this.title, this.userUID}) : super(key: key);
   final String title;
+  final String userUID;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -63,8 +65,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("APP_STATE: $state");
-
     if (state == AppLifecycleState.resumed) {
       // user returned to our app
       updateWidgetState();
@@ -82,6 +82,20 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+            onSelected: handleClick,
+            itemBuilder: (BuildContext context) {
+              return {'Details', 'Questionnaire', 'Profile'}
+                  .map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: Padding(
           padding: EdgeInsets.all(8.0),
@@ -122,10 +136,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                           ),
                         ]),
                       ),
-                Padding(padding: EdgeInsets.only(top: 6.0)),
-                IndexTableAndLegend(),
-                Padding(padding: EdgeInsets.only(top: 6.0)),
-                WaqiLinkDisplay(latitude, longitude)
+                LocationServiceHandling(api),
+                Padding(padding: EdgeInsets.only(top: 4.0))
               ]))),
     );
   }
@@ -140,56 +152,95 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     String humidityFound;
     String pressureFound;
     String temperatureFound;
-    api.getWaqiValuesMap().then((nativeAppData) => {
-          print('Data from main app'),
-          aqiIndex = nativeAppData["airQualityIndex"],
-          readLatitude = nativeAppData["latitude"],
-          readLongitude = nativeAppData["longitude"],
-          if (readLongitude == null ||
-              readLongitude.isEmpty ||
-              readLongitude == 'error')
-            {readLongitude = 'NaN'},
-          if (readLatitude == null ||
-              readLatitude.isEmpty ||
-              readLatitude == 'error')
-            {readLatitude = 'NaN'},
-          dateString = nativeAppData["dateString"],
-          stationAddressFound = nativeAppData["stationAddress"],
-          stationUpdateTimeFound = nativeAppData["stationUpdateTime"],
-          humidityFound = nativeAppData["humidity"],
-          pressureFound = nativeAppData["pressure"],
-          temperatureFound = nativeAppData["temperature"],
-          print(humidityFound),
-          print(pressureFound),
-          print(temperatureFound),
-          if (aqiIndex != null &&
-              aqiIndex.length > 0 &&
-              aqiIndex.isNotEmpty &&
-              aqiIndex != 'error')
-            {
-              print('Will display'),
-              setState(() {
-                latitude = double.parse(readLatitude).toStringAsFixed(2);
-                longitude = double.parse(readLongitude).toStringAsFixed(2);
-                airQualityIndex = aqiIndex;
-                lastModification = dateString;
-                indexColor = determineColor(int.parse(aqiIndex));
-                stationAddress = stationAddressFound;
-                stationUpdateTime = stationUpdateTimeFound;
-                humidity = humidityFound;
-                pressure = pressureFound;
-                temperature = temperatureFound;
-                display = true;
-              })
-            }
-          else
-            {
-              print('Will not display'),
+    api
+        .getWaqiValuesMap()
+        .then((nativeAppData) => {
+              print('Data from main app'),
+              aqiIndex = nativeAppData["airQualityIndex"],
+              readLatitude = nativeAppData["latitude"],
+              readLongitude = nativeAppData["longitude"],
+              if (readLongitude == null ||
+                  readLongitude.isEmpty ||
+                  readLongitude == 'error')
+                {readLongitude = 'NaN'},
+              if (readLatitude == null ||
+                  readLatitude.isEmpty ||
+                  readLatitude == 'error')
+                {readLatitude = 'NaN'},
+              dateString = nativeAppData["dateString"],
+              stationAddressFound = nativeAppData["stationAddress"],
+              stationUpdateTimeFound = nativeAppData["stationUpdateTime"],
+              humidityFound = nativeAppData["humidity"],
+              pressureFound = nativeAppData["pressure"],
+              temperatureFound = nativeAppData["temperature"],
+              print(humidityFound),
+              print(pressureFound),
+              print(temperatureFound),
+              if (aqiIndex != null &&
+                  aqiIndex.length > 0 &&
+                  aqiIndex.isNotEmpty &&
+                  aqiIndex != 'error')
+                {
+                  print('Will display'),
+                  setState(() {
+                    latitude = double.parse(readLatitude).toStringAsFixed(2);
+                    longitude = double.parse(readLongitude).toStringAsFixed(2);
+                    airQualityIndex = aqiIndex;
+                    lastModification = dateString;
+                    indexColor = determineColor(int.parse(aqiIndex));
+                    stationAddress = stationAddressFound;
+                    stationUpdateTime = stationUpdateTimeFound;
+                    humidity = humidityFound;
+                    pressure = pressureFound;
+                    temperature = temperatureFound;
+                    display = true;
+                  })
+                }
+              else
+                {
+                  print('Will not display'),
+                  setState(() {
+                    display = false;
+                  })
+                },
+            })
+        .catchError((error) => {
+              print('ERROR ' + error.toString()),
               setState(() {
                 display = false;
               })
-            },
-        });
+            });
+  }
+
+  Future<void> handleClick(String value) async {
+    switch (value) {
+      case 'Details':
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    IndexTableAndLegend(latitude, longitude)));
+        break;
+      case 'Questionnaire':
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    QuestionnairePicker(userUID: widget.userUID)));
+        break;
+      case 'Profile':
+        UserData.User user = await Api.getCurrentUserWithData(widget.userUID);
+        print("User: "+user.toString());
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Register(
+                    userUID: widget.userUID,
+                    gender: user.gender,
+                    birthday: user.birthday,
+                    givenMail: user.email)));
+        break;
+    }
   }
 
   determineColor(index) {

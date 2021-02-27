@@ -81,7 +81,7 @@ class ApiDataDisplay extends StatelessWidget {
                   Text('Pressure: ' + pressure),
                   Text('Humidity: ' + humidity),
                 ]))),
-        Padding(padding: EdgeInsets.only(top: 10.0)),
+        Padding(padding: EdgeInsets.only(top: 5.0)),
       ],
     );
   }
