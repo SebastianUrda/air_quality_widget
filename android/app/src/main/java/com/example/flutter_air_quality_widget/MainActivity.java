@@ -32,6 +32,7 @@ public class MainActivity extends FlutterActivity implements
     private static final String TAG = "MainActivity";
     private static final String CHANNEL = "air.quality.widget";
     private static final String SharedPreferencesFileName = "AirQualityWidgetApp";
+    private static boolean willStartService = false;
     // Used in checking for runtime permissions.
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
@@ -69,6 +70,7 @@ public class MainActivity extends FlutterActivity implements
             } else if (call.method.equals("startLocationUpdates")) {
                 if (!checkPermissions()) {
                     requestPermissions();
+                    willStartService = true;
                 } else {
                     mService.requestLocationUpdates();
                 }
@@ -146,7 +148,9 @@ public class MainActivity extends FlutterActivity implements
                 Log.i(TAG, "User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission was granted.
-                mService.requestLocationUpdates();
+                if (willStartService) {
+                    mService.requestLocationUpdates();
+                }
             }
         }
     }
