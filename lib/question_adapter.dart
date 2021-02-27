@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'models/question.dart';
 
 class QuestionAdapter extends StatefulWidget {
@@ -35,78 +36,72 @@ class _QuestionAdapter extends State<QuestionAdapter> {
                   ),
                 ),
                 SizedBox(height: 6.0),
-
               ],
             ),
           ),
-        children: <Widget>[
-          FittedBox(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                    width: 300,
-                    child: question.possibleAnswers == null
-                        ? Slider(
-                      value: answer,
-                      min: -5,
-                      max: 5,
-                      divisions: 10,
-                      onChanged: (double newValue) {
-                        setState(() {
-                          answer = newValue;
-                        });
-                        widget.updateAnswer(
-                            question, newValue.toInt());
-                      },
-                    )
-                        : (question.possibleAnswers.length < 3
-                        ? Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment:
-                        CrossAxisAlignment.center,
-                        children: question.possibleAnswers
-                            .map((item) =>
-                        new Column(children: <Widget>[
-                          new Text(item['ans']),
-                          new Radio(
-                              value:
-                              item['value'].toInt(),
-                              groupValue: answer,
-                              onChanged: (value) {
+          children: <Widget>[
+            FittedBox(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                      width: 300,
+                      child: question.possibleAnswers == null
+                          ? Slider(
+                              value: answer,
+                              min: -5,
+                              max: 5,
+                              divisions: 10,
+                              onChanged: (double newValue) {
                                 setState(() {
-                                  answer =
-                                      value.toDouble();
+                                  answer = newValue;
                                 });
-                                widget.updateAnswer(
-                                    question, value);
-                              })
-                        ]))
-                            .toList())
-                        : Column(
-                        children: question.possibleAnswers
-                            .map((item) =>
-                        new Column(children: <Widget>[
-                          new Text(item['ans']),
-                          new Radio(
-                              value:
-                              item['value'].toInt(),
-                              groupValue: answer,
-                              onChanged: (value) {
-                                setState(() {
-                                  answer =
-                                      value.toDouble();
-                                });
-                                widget.updateAnswer(
-                                    question, value);
-                              })
-                        ]))
-                            .toList()))),
-              ],
-            ),
-          )
-        ],));
+                                widget.updateAnswer(question, newValue.toInt());
+                              },
+                            )
+                          : (question.possibleAnswers.length < 3
+                              ? Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: question.possibleAnswers
+                                      .map((item) =>
+                                          new Column(children: <Widget>[
+                                            new Text(item['ans']),
+                                            new Radio(
+                                                value: item['value'].toInt(),
+                                                groupValue: answer,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    answer = value.toDouble();
+                                                  });
+                                                  widget.updateAnswer(
+                                                      question, value);
+                                                })
+                                          ]))
+                                      .toList())
+                              : Column(
+                                  children: question.possibleAnswers
+                                      .map((item) =>
+                                          new Column(children: <Widget>[
+                                            new Text(item['ans']),
+                                            new Radio(
+                                                value: item['value'].toInt(),
+                                                groupValue: answer,
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    answer = value.toDouble();
+                                                  });
+                                                  widget.updateAnswer(
+                                                      question, value);
+                                                })
+                                          ]))
+                                      .toList()))),
+                ],
+              ),
+            )
+          ],
+        ));
   }
 }

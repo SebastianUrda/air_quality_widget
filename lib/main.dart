@@ -155,7 +155,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     api
         .getWaqiValuesMap()
         .then((nativeAppData) => {
-              print('Data from main app'),
               aqiIndex = nativeAppData["airQualityIndex"],
               readLatitude = nativeAppData["latitude"],
               readLongitude = nativeAppData["longitude"],
@@ -173,15 +172,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               humidityFound = nativeAppData["humidity"],
               pressureFound = nativeAppData["pressure"],
               temperatureFound = nativeAppData["temperature"],
-              print(humidityFound),
-              print(pressureFound),
-              print(temperatureFound),
               if (aqiIndex != null &&
                   aqiIndex.length > 0 &&
                   aqiIndex.isNotEmpty &&
                   aqiIndex != 'error')
                 {
-                  print('Will display'),
                   setState(() {
                     latitude = double.parse(readLatitude).toStringAsFixed(2);
                     longitude = double.parse(readLongitude).toStringAsFixed(2);
@@ -198,7 +193,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 }
               else
                 {
-                  print('Will not display'),
                   setState(() {
                     display = false;
                   })
@@ -230,7 +224,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         break;
       case 'Profile':
         UserData.User user = await Api.getCurrentUserWithData(widget.userUID);
-        print("User: "+user.toString());
         Navigator.push(
             context,
             MaterialPageRoute(

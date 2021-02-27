@@ -22,7 +22,6 @@ class QuestionnairePicker extends StatelessWidget {
               ? List.from(question['possibleAnswers'])
               : null));
     });
-    print(questions);
     return questions;
   }
 
@@ -42,18 +41,11 @@ class QuestionnairePicker extends StatelessWidget {
                 Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(30.0),
-                    color: Color(0xff01A0C7),
+                    color: Colors.blue,
                     child: MaterialButton(
                       minWidth: MediaQuery.of(context).size.width,
                       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                       onPressed: () {
-//                        getQuestions('temperature').then((questions) {
-//                          Navigator.push(
-//                              context,
-//                              MaterialPageRoute(
-//                                  builder: (context) => Questionnaire(
-//                                      questions: questions, userId: userId)));
-//                        });
                         getFireBaseQuestions('temperature').then((questions) {
                           Navigator.push(
                               context,
@@ -76,18 +68,11 @@ class QuestionnairePicker extends StatelessWidget {
                 Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(30.0),
-                    color: Color(0xff01A0C7),
+                    color: Colors.blue,
                     child: MaterialButton(
                       minWidth: MediaQuery.of(context).size.width,
                       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                       onPressed: () {
-//                        getQuestions('dust').then((questions) {
-//                          Navigator.push(
-//                              context,
-//                              MaterialPageRoute(
-//                                  builder: (context) => Questionnaire(
-//                                      questions: questions, userId: userId)));
-//                        });
                         getFireBaseQuestions('dust').then((questions) {
                           Navigator.push(
                               context,
@@ -108,18 +93,11 @@ class QuestionnairePicker extends StatelessWidget {
                 Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(30.0),
-                    color: Color(0xff01A0C7),
+                    color: Colors.blue,
                     child: MaterialButton(
                       minWidth: MediaQuery.of(context).size.width,
                       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                       onPressed: () {
-//                        getQuestions('humidity').then((questions) {
-//                          Navigator.push(
-//                              context,
-//                              MaterialPageRoute(
-//                                  builder: (context) => Questionnaire(
-//                                      questions: questions, userId: userId)));
-//                        });
                         getFireBaseQuestions('humidity').then((questions) {
                           Navigator.push(
                               context,
@@ -140,18 +118,11 @@ class QuestionnairePicker extends StatelessWidget {
                 Material(
                     elevation: 5.0,
                     borderRadius: BorderRadius.circular(30.0),
-                    color: Color(0xff01A0C7),
+                    color: Colors.blue,
                     child: MaterialButton(
                       minWidth: MediaQuery.of(context).size.width,
                       padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
                       onPressed: () {
-//                        getQuestions('light').then((questions) {
-//                          Navigator.push(
-//                              context,
-//                              MaterialPageRoute(
-//                                  builder: (context) => Questionnaire(
-//                                      questions: questions, userId: userId)));
-//                        });
                         getFireBaseQuestions('light').then((questions) {
                           Navigator.push(
                               context,

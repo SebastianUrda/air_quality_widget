@@ -16,7 +16,8 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-  bool male ;
+  bool male;
+
   bool female;
   String email;
   DateTime selectedBirthDay;
@@ -37,14 +38,12 @@ class _RegisterState extends State<Register> {
   @override
   void initState() {
     super.initState();
-    print('init register state');
-    print(widget.givenMail);
     setState(() {
       male = widget.gender == 'male' ? true : false;
       female = widget.gender == 'female' ? true : false;
       selectedBirthDay = DateTime.parse(widget.birthday);
       email = widget.givenMail;
-      _emailController.text=widget.givenMail;
+      _emailController.text = widget.givenMail;
     });
   }
 
@@ -116,7 +115,7 @@ class _RegisterState extends State<Register> {
                       children: <Widget>[
                         MaterialButton(
                           onPressed: () => _selectDate(context),
-                          color: Color(0xff01A0C7),
+                          color: Colors.blue,
                           textColor: Colors.white,
                           child: Icon(
                             Icons.calendar_today,
@@ -140,7 +139,7 @@ class _RegisterState extends State<Register> {
                   Material(
                       elevation: 5.0,
                       borderRadius: BorderRadius.circular(30.0),
-                      color: Color(0xff01A0C7),
+                      color: Colors.blue,
                       child: MaterialButton(
                         minWidth: MediaQuery.of(context).size.width,
                         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
@@ -162,7 +161,7 @@ class _RegisterState extends State<Register> {
                               .then((value) => _showMaterialDialog(
                                   "Success!", "Data saved successfully!"))
                               .catchError((error) => {
-                                    print(error),
+                                    print('ERROR' + error),
                                     _showMaterialDialog(
                                         "Failure!", "Please try again!")
                                   });

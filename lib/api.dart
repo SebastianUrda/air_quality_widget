@@ -59,7 +59,6 @@ class Api {
   }
 
   static Future setDataToUser(UserData.User toRegister, String uid) {
-    print(uid);
     return FirebaseFirestore.instance
         .collection("anonymousUsers")
         .doc(uid)
@@ -79,20 +78,10 @@ class Api {
 
   static Future getCurrentUserWithData(String userUID) async {
     try {
-      FirebaseFirestore.instance
-          .collection('anonymousUsers')
-          .get()
-          .then((QuerySnapshot querySnapshot) => {
-                querySnapshot.docs.forEach((doc) {
-                  print(doc["email"]);
-                  print(doc.id);
-                })
-              });
       DocumentSnapshot currentUserData = await FirebaseFirestore.instance
           .collection("anonymousUsers")
           .doc(userUID)
           .get();
-      print(currentUserData.data());
       UserData.User toReturn = UserData.User.toReturn(
           userUID,
           currentUserData.data()['email'],
@@ -100,10 +89,9 @@ class Api {
           currentUserData.data()['birthday']);
       return toReturn;
     } catch (error) {
-      print(error);
+      print('ERROR'+ error);
       UserData.User toReturn =
           UserData.User.toReturn(userUID, "", "", DateTime.now().toString());
-      print(toReturn);
       return toReturn;
     }
   }

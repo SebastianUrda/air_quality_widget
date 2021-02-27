@@ -1,4 +1,4 @@
-class Answer{
+class Answer {
   double latitude;
   double longitude;
   DateTime date;
@@ -6,18 +6,17 @@ class Answer{
   String questionUID;
   String userUID;
 
-
   Answer(this.latitude, this.longitude, this.date, this.answer,
       this.questionUID, this.userUID);
 
-  Map<String,dynamic> toJson()=>{
-    'latitude':latitude,
-    'longitude':longitude,
-    'date':date.toIso8601String().split(".")[0]+"Z",
-    'answer':answer,
-    'questionUID':questionUID,
-    'userUID':userUID
-  };
+  Map<String, dynamic> toJson() => {
+        'latitude': latitude,
+        'longitude': longitude,
+        'date': date.toIso8601String().split(".")[0] + "Z",
+        'answer': answer,
+        'questionUID': questionUID,
+        'userUID': userUID
+      };
 
   @override
   String toString() {

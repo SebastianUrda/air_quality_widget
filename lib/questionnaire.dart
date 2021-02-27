@@ -64,17 +64,21 @@ class _Questionnaire extends State<Questionnaire> {
                 Api.getLocation().then((currentLocation) {
                   var currentTime = new DateTime.now();
                   for (Question q in questions) {
-                    Answer answer = Answer(currentLocation.latitude, currentLocation.longitude, currentTime, q.answer, q.uid, widget.userUID);
+                    Answer answer = Answer(
+                        currentLocation.latitude,
+                        currentLocation.longitude,
+                        currentTime,
+                        q.answer,
+                        q.uid,
+                        widget.userUID);
                     answers.add(answer);
                   }
-                  print(answers);
 
                   Api.sendAnswersToFireBase(answers).then((response) {
                     _showMaterialDialog(
                         "Success!", "Your answers were sent to the server!");
                   }).catchError((error) {
-                    print('Error');
-                    print(error);
+                    print('Error' + error);
                     _showMaterialDialog("Fail!",
                         "There was an error on the way, please send your answers again!");
                   });
