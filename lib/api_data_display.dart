@@ -77,9 +77,9 @@ class ApiDataDisplay extends StatelessWidget {
                   Text('Weather measurements',
                       style:
                           new TextStyle(color: Colors.green, fontSize: 15.0)),
-                  Text('Temperature: ' + temperature),
-                  Text('Pressure: ' + pressure),
-                  Text('Humidity: ' + humidity),
+                  Text('Temperature: ' + temperature + " \u2103"),
+                  Text('Pressure: ' + pressure + " mbar"),
+                  Text('Humidity: ' + humidity + " %"),
                 ]))),
         Padding(padding: EdgeInsets.only(top: 5.0)),
       ],

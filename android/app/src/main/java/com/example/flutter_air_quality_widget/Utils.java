@@ -45,7 +45,7 @@ class Utils {
         String pressure = sharedPreferences.getString("pressure", "error");
 
         return location == null ? "Unknown location" :
-                "AQI: " + aqi + ", Humidity: " + humidity + ", Pressure: " + pressure;
+                "AQI: " + aqi + ", Humidity: " + humidity + "% , Pressure: " + pressure+" mbar";
     }
 
     static String getLocationTitle(Context context) {

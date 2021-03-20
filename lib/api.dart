@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,6 +6,7 @@ import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
 import 'models/answer.dart';
@@ -15,13 +17,43 @@ class Api {
 
   //    "https://api.waqi.info/feed/geo:" + latitude + ";" + longitude + "/?token=2af09b666411b6719ba2528edaba5f126f6fdfa3"
   Future getAirQualityIndex(latitude, longitude) async {
-    var url = 'https://api.waqi.info/feed/geo:' +
-        latitude +
-        ';' +
-        longitude +
-        '/?token=2af09b666411b6719ba2528edaba5f126f6fdfa3';
+    var currentLocationFromSharedPrefs =
+        await getLocationFromSharedPreferences();
+    if (latitude == 'NaN' && longitude == 'NaN') {
+      latitude = currentLocationFromSharedPrefs["latitude"];
+      longitude = currentLocationFromSharedPrefs["longitude"];
+    }
+    setCurrentLocationFromFlutter(latitude, longitude);
+    var url;
+    if (latitude != null &&
+        longitude != null &&
+        latitude != 'NaN' &&
+        longitude != 'NaN' &&
+        latitude != 'error' &&
+        longitude != 'error') {
+      url = 'https://api.waqi.info/feed/geo:' +
+          latitude +
+          ';' +
+          longitude +
+          '/?token=2af09b666411b6719ba2528edaba5f126f6fdfa3';
+    } else {
+      url =
+          'https://api.waqi.info/feed/here/?token=2af09b666411b6719ba2528edaba5f126f6fdfa3';
+    }
+
     var response = await http.get(url);
-    return response;
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    return mapApiDataToNativeAppData(jsonResponse, latitude, longitude);
+  }
+
+  Future getLocationFromSharedPreferences() async {
+    Map toReturn;
+    try {
+      toReturn = await platform.invokeMethod('getCurrentLocation');
+    } on PlatformException catch (e) {
+      print("Failed to get shared pref data level: '${e.message}'.");
+    }
+    return toReturn;
   }
 
   Future getWaqiValuesMap() async {
@@ -34,18 +66,55 @@ class Api {
     return toReturn;
   }
 
+  mapApiDataToNativeAppData(apiJsonResponse, latitude, longitude) {
+    Map<String, dynamic> toDisplay = new HashMap<String, dynamic>();
+    toDisplay.putIfAbsent(
+        "airQualityIndex", () => apiJsonResponse["data"]["aqi"].toString());
+    toDisplay.putIfAbsent("stationAddress",
+        () => apiJsonResponse["data"]["city"]["name"].toString());
+    toDisplay.putIfAbsent("stationUpdateTime",
+        () => apiJsonResponse["data"]["time"]["s"].toString());
+    toDisplay.putIfAbsent(
+        "humidity", () => apiJsonResponse["data"]["iaqi"]["h"]["v"].toString());
+    toDisplay.putIfAbsent(
+        "pressure", () => apiJsonResponse["data"]["iaqi"]["p"]["v"].toString());
+    toDisplay.putIfAbsent("temperature",
+        () => apiJsonResponse["data"]["iaqi"]["t"]["v"].toString());
+    toDisplay.putIfAbsent(
+        "dateString", () => DateFormat.jm().format(DateTime.now()));
+    toDisplay.putIfAbsent("latitude", () => latitude);
+    toDisplay.putIfAbsent("longitude", () => longitude);
+    return toDisplay;
+  }
+
   startService() {
-    platform.invokeMethod('startLocationUpdates');
+    try {
+      platform.invokeMethod('startLocationUpdates');
+    } on PlatformException catch (e) {
+      print("Failed to invoke : '${e.message}'.");
+    }
   }
 
   stopService() {
-    platform.invokeMethod('stopLocationUpdates');
+    try {
+      platform.invokeMethod('stopLocationUpdates');
+    } on PlatformException catch (e) {
+      print("Failed to invoke : '${e.message}'.");
+    }
   }
 
-  static Future getLocation() async {
+  setCurrentLocationFromFlutter(latitude, longitude) {
+    try {
+      platform.invokeMethod(
+          'setCurrentLocation', {"latitude": latitude, "longitude": longitude});
+    } on PlatformException catch (e) {
+      print("Failed to get shared pref after location update: '${e.message}'.");
+    }
+  }
+
+   Future getLocation() async {
     var location = new Location();
-    var currentLocation = await location.getLocation();
-    return currentLocation;
+    return location.getLocation();
   }
 
   static String generateMd5(String input) {
@@ -89,7 +158,7 @@ class Api {
           currentUserData.data()['birthday']);
       return toReturn;
     } catch (error) {
-      print('ERROR'+ error);
+      print("Failed to get user data '${error}'.");
       UserData.User toReturn =
           UserData.User.toReturn(userUID, "", "", DateTime.now().toString());
       return toReturn;

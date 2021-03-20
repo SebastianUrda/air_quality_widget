@@ -4,12 +4,12 @@ import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_air_quality_widget/api_data_display.dart';
-import 'package:flutter_air_quality_widget/location_service_handling.dart';
 import 'package:flutter_air_quality_widget/questionnaire_type.dart';
 import 'package:flutter_air_quality_widget/register.dart';
 import 'package:flutter_air_quality_widget/table_with_legend.dart';
 
 import 'api.dart';
+import 'data_will_display.dart';
 import 'models/user_data.dart' as UserData;
 
 main() async {
@@ -37,8 +37,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  String latitude;
-  String longitude;
+  String latitude = 'NaN';
+  String longitude = 'NaN';
   String airQualityIndex;
   String lastModification;
   String stationAddress;
@@ -48,13 +48,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String temperature;
   Color indexColor = Colors.black;
   bool display = false;
+  bool isLoading = false;
   Api api = new Api();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    updateWidgetState();
+    initiliseWidgetState();
   }
 
   @override
@@ -67,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // user returned to our app
-      updateWidgetState();
+      initiliseWidgetState();
     } else if (state == AppLifecycleState.inactive) {
       // app is inactive
     } else if (state == AppLifecycleState.paused) {
@@ -84,9 +85,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         title: Text(widget.title),
         actions: <Widget>[
           PopupMenuButton<String>(
-            onSelected: handleClick,
+            onSelected: contextMenuClick,
             itemBuilder: (BuildContext context) {
-              return {'Details', 'Questionnaire', 'Profile'}
+              return {'More Info', 'Questionnaire', 'User Data'}
                   .map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
@@ -97,52 +98,74 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           ),
         ],
       ),
-      body: Padding(
-          padding: EdgeInsets.all(8.0),
-          child: RefreshIndicator(
-              onRefresh: () async {
-                updateWidgetState();
-              },
-              child: ListView(children: [
-                display == true
-                    ? ApiDataDisplay(
-                        latitude,
-                        longitude,
-                        airQualityIndex,
-                        lastModification,
-                        stationAddress,
-                        stationUpdateTime,
-                        humidity,
-                        pressure,
-                        temperature,
-                        indexColor)
-                    : Center(
-                        child: Column(children: [
-                          Text(
-                              'Data will be available soon.\nSwipe down to refresh the application.',
-                              style: new TextStyle(
-                                  color: Colors.green, fontSize: 20.0)),
-                          Tooltip(
-                            message:
-                                'Data displayed might be less accurate at first due to missing permission to access the location.\n If you encounter such issues please provide permission and restart the application several times.',
-                            child: FlatButton(
-                              minWidth: 100,
-                              child: Icon(
-                                Icons.info_outline,
-                                size: 20,
-                                color: Colors.teal,
-                              ),
-                            ),
-                          ),
-                        ]),
-                      ),
-                LocationServiceHandling(api),
-                Padding(padding: EdgeInsets.only(top: 4.0))
-              ]))),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: EdgeInsets.all(8.0),
+              child: RefreshIndicator(
+                  onRefresh: () async {
+                    updateWidgetState();
+                  },
+                  child: ListView(children: [
+                    display
+                        ? ApiDataDisplay(
+                            latitude,
+                            longitude,
+                            airQualityIndex,
+                            lastModification,
+                            stationAddress,
+                            stationUpdateTime,
+                            humidity,
+                            pressure,
+                            temperature,
+                            indexColor)
+                        : DataWillDisplay(),
+                    Card(
+                        child: Column(
+                      children: [
+                        OutlinedButton(
+                            // minWidth: MediaQuery.of(context).size.width,
+                            // padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+                            onPressed: () {
+                              updateLocationAndRefreshState();
+                            },
+                            child: Text("Set current location",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold))),
+                        Padding(padding: EdgeInsets.only(top: 5.0)),
+                        OutlinedButton(
+                            // minWidth: MediaQuery.of(context).size.width,
+                            // padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+                            onPressed: () {
+                              api.startService();
+                            },
+                            child: Text("Start location updating service",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold))),
+                        Padding(padding: EdgeInsets.only(top: 5.0)),
+                        OutlinedButton(
+                            // minWidth: MediaQuery.of(context).size.width,
+                            // padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+                            onPressed: () {
+                              api.stopService();
+                            },
+                            child: Text("Stop updating service",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold)))
+                      ],
+                    )),
+                    Padding(padding: EdgeInsets.only(top: 4.0))
+                  ]))),
     );
   }
 
-  updateWidgetState() {
+  initiliseWidgetState() {
     String aqiIndex;
     String readLatitude;
     String readLongitude;
@@ -189,6 +212,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     pressure = pressureFound;
                     temperature = temperatureFound;
                     display = true;
+                    isLoading = false;
                   })
                 }
               else
@@ -206,9 +230,88 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             });
   }
 
-  Future<void> handleClick(String value) async {
+  updateWidgetState() {
+    String aqiIndex;
+    String readLatitude;
+    String readLongitude;
+    String dateString;
+    String stationAddressFound;
+    String stationUpdateTimeFound;
+    String humidityFound;
+    String pressureFound;
+    String temperatureFound;
+    api
+        .getAirQualityIndex(latitude, longitude)
+        .then((nativeAppData) => {
+              aqiIndex = nativeAppData["airQualityIndex"],
+              readLatitude = nativeAppData["latitude"],
+              readLongitude = nativeAppData["longitude"],
+              if (readLongitude == null ||
+                  readLongitude.isEmpty ||
+                  readLongitude == 'error')
+                {readLongitude = 'NaN'},
+              if (readLatitude == null ||
+                  readLatitude.isEmpty ||
+                  readLatitude == 'error')
+                {readLatitude = 'NaN'},
+              dateString = nativeAppData["dateString"],
+              stationAddressFound = nativeAppData["stationAddress"],
+              stationUpdateTimeFound = nativeAppData["stationUpdateTime"],
+              humidityFound = nativeAppData["humidity"],
+              pressureFound = nativeAppData["pressure"],
+              temperatureFound = nativeAppData["temperature"],
+              if (aqiIndex != null &&
+                  aqiIndex.length > 0 &&
+                  aqiIndex.isNotEmpty &&
+                  aqiIndex != 'error')
+                {
+                  setState(() {
+                    latitude = double.parse(readLatitude).toStringAsFixed(2);
+                    longitude = double.parse(readLongitude).toStringAsFixed(2);
+                    airQualityIndex = aqiIndex;
+                    lastModification = dateString;
+                    indexColor = determineColor(int.parse(aqiIndex));
+                    stationAddress = stationAddressFound;
+                    stationUpdateTime = stationUpdateTimeFound;
+                    humidity = humidityFound;
+                    pressure = pressureFound;
+                    temperature = temperatureFound;
+                    display = true;
+                    isLoading = false;
+                  })
+                }
+              else
+                {
+                  setState(() {
+                    display = false;
+                  })
+                },
+            })
+        .catchError((error) => {
+              print('ERROR ' + error.toString()),
+              setState(() {
+                display = false;
+              })
+            });
+  }
+
+  updateLocationAndRefreshState() async {
+    setLoading(true);
+    api.getLocation().then((currentLocation) => {
+          setState(() {
+            latitude = currentLocation.latitude.toString();
+            longitude = currentLocation.longitude.toString();
+          }),
+          api.setCurrentLocationFromFlutter(latitude, longitude),
+          updateWidgetState(),
+        });
+  }
+
+  setLoading(bool state) => setState(() => {isLoading = state});
+
+  Future<void> contextMenuClick(String value) async {
     switch (value) {
-      case 'Details':
+      case 'More Info':
         Navigator.push(
             context,
             MaterialPageRoute(
@@ -222,7 +325,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 builder: (context) =>
                     QuestionnairePicker(userUID: widget.userUID)));
         break;
-      case 'Profile':
+      case 'User Data':
         UserData.User user = await Api.getCurrentUserWithData(widget.userUID);
         Navigator.push(
             context,

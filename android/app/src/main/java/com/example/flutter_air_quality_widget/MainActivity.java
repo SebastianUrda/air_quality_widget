@@ -44,6 +44,7 @@ public class MainActivity extends FlutterActivity implements
 
     // Tracks the bound state of the service.
     private boolean mBound = false;
+
     // Monitors the state of the connection to the service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
@@ -76,7 +77,20 @@ public class MainActivity extends FlutterActivity implements
                 }
             } else if (call.method.equals("stopLocationUpdates")) {
                 mService.removeLocationUpdates();
+            } else if (call.method.equals("setCurrentLocation")) {
+                String latitude = call.argument("latitude");
+                String longitude = call.argument("longitude");
+                Log.d(TAG, latitude + ", " + longitude);
+                if (latitude != null && longitude != null && !latitude.equals("error") && !longitude.equals("error") && !latitude.equals("NaN") && !longitude.equals("NaN")) {
+                    SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences(SharedPreferencesFileName, MODE_PRIVATE).edit();
+                    sharedPreferencesEditor.putString("longitude", longitude).apply();
+                    sharedPreferencesEditor.putString("latitude", latitude).apply();
+                }
+                makeApiCall();
+            } else if (call.method.equals("getCurrentLocation")) {
+                result.success(getLocationFromSharedPreferences());
             }
+
         });
     }
 
@@ -85,14 +99,9 @@ public class MainActivity extends FlutterActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myReceiver = new MyReceiver();
-
-        // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-            if (!checkPermissions()) {
-                requestPermissions();
-            }
+        if (!checkPermissions()) {
+            requestPermissions();
         }
-        makeApiCall();
     }
 
     @Override
@@ -170,6 +179,13 @@ public class MainActivity extends FlutterActivity implements
         return data;
     }
 
+    private Map getLocationFromSharedPreferences() {
+        Map<String, String> data = new HashMap<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(SharedPreferencesFileName, Context.MODE_PRIVATE);
+        data.put("longitude", sharedPreferences.getString("longitude", "error"));
+        data.put("latitude", sharedPreferences.getString("latitude", "error"));
+        return data;
+    }
 
     /**
      * Returns the current state of the permissions needed.

@@ -18,7 +18,7 @@ class Questionnaire extends StatefulWidget {
 class _Questionnaire extends State<Questionnaire> {
   List<Question> questions;
   bool sent = false;
-
+  Api api= new Api();
   _Questionnaire({this.questions});
 
   updateAnswer(Question question, int answer) {
@@ -61,7 +61,7 @@ class _Questionnaire extends State<Questionnaire> {
                   sent = true;
                 });
                 List<Answer> answers = new List<Answer>();
-                Api.getLocation().then((currentLocation) {
+                api.getLocation().then((currentLocation) {
                   var currentTime = new DateTime.now();
                   for (Question q in questions) {
                     Answer answer = Answer(
