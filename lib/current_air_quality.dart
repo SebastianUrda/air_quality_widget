@@ -1,54 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_air_quality_widget/rating_card.dart';
 
 import 'api.dart';
 import 'models/answer.dart';
 import 'models/question.dart';
-import 'question_adapter.dart';
 
-class Questionnaire extends StatefulWidget {
+class CurrentAirQualityQuiz extends StatefulWidget {
   List<Question> questions;
   String userUID;
 
-  Questionnaire({this.questions, this.userUID});
+  CurrentAirQualityQuiz({this.questions, this.userUID});
 
   @override
-  _Questionnaire createState() => _Questionnaire(questions: questions);
+  _CurrentAirQualityQuiz createState() => _CurrentAirQualityQuiz();
 }
 
-class _Questionnaire extends State<Questionnaire> {
-  List<Question> questions;
+class _CurrentAirQualityQuiz extends State<CurrentAirQualityQuiz> {
   bool sent = false;
-  Api api= new Api();
-  _Questionnaire({this.questions});
-
-  updateAnswer(Question question, int answer) {
-    setState(() {
-      question.answer = answer;
-    });
-  }
+  Api api = new Api();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return (Scaffold(
       appBar: AppBar(
-        title: Text("Answer Questions"),
+        title: Text('Air Quality Index Application'),
         centerTitle: true,
       ),
-      body: Column(children: [
-        Container(
-            margin: EdgeInsets.all(20.0),
-            child: Text("Answer the following questions ",
-                style: TextStyle(fontSize: 20))),
-        Expanded(
-            child: ListView.builder(
-          padding: EdgeInsets.all(10),
-          itemCount: this.questions.length,
-          itemBuilder: (context, index) {
-            return QuestionAdapter(
-                question: questions[index], updateAnswer: updateAnswer);
-          },
-        ))
-      ]),
+      body: Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(children: [
+            Container(
+                margin: EdgeInsets.all(20.0),
+                child: Text("Answer the following questions ",
+                    style: TextStyle(fontSize: 20))),
+            Expanded(
+                child: ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: widget.questions.length,
+              itemBuilder: (context, index) {
+                return RatingAdapter(
+                    question: widget.questions[index],
+                    updateAnswer: updateAnswer);
+              },
+            ))
+          ])),
       floatingActionButton: FloatingActionButton(
         child: Text('Send'),
         onPressed: sent
@@ -63,7 +58,7 @@ class _Questionnaire extends State<Questionnaire> {
                 List<Answer> answers = new List<Answer>();
                 api.getLocation().then((currentLocation) {
                   var currentTime = new DateTime.now();
-                  for (Question q in questions) {
+                  for (Question q in widget.questions) {
                     Answer answer = Answer(
                         currentLocation.latitude,
                         currentLocation.longitude,
@@ -85,7 +80,13 @@ class _Questionnaire extends State<Questionnaire> {
                 });
               },
       ),
-    );
+    ));
+  }
+
+  updateAnswer(Question question, double answer) {
+    setState(() {
+      question.answer = answer.toInt();
+    });
   }
 
   void _showMaterialDialog(String title, String text) {

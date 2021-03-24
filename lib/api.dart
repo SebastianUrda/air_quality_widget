@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -112,7 +113,7 @@ class Api {
     }
   }
 
-   Future getLocation() async {
+  Future getLocation() async {
     var location = new Location();
     return location.getLocation();
   }
@@ -174,6 +175,51 @@ class Api {
         .collection("questions")
         .where('type', isEqualTo: type)
         .get();
+  }
+
+  static Future getFireBaseGeneralQuestions() {
+    return FirebaseFirestore.instance
+        .collection("questions")
+        .where('type', isEqualTo: 'general')
+        .orderBy('index')
+        .get();
+  }
+
+  Future getAnswersAroundYou(latitude, longitude, distance) async {
+    //distance is in meters
+    double latRadian = double.parse(latitude) * math.pi / 180;
+    double degLatKm = 110.574235;
+    double degLongKm = 110.572833 * math.cos(latRadian);
+    double deltaLat = distance / 1000.0 / degLatKm;
+    double deltaLong = distance / 1000.0 / degLongKm;
+
+    double minLat = double.parse(latitude) - deltaLat;
+    double minLong = double.parse(longitude) - deltaLong;
+    double maxLat = double.parse(latitude) + deltaLat;
+    double maxLong = double.parse(longitude) + deltaLong;
+
+    QuerySnapshot response = await FirebaseFirestore.instance
+        .collection("anonymousUsersAnswers")
+        .where('questionUID', isEqualTo: "nvSlAhXm86X99vJrNU5p")
+        .get();
+
+    var sum = 0;
+    var count = 0;
+
+    response.docs.forEach((answer) {
+      DateTime answerTime = DateTime.parse(answer['date']);
+
+      if (answer['latitude'] <= maxLat &&
+          answer['latitude'] >= minLat &&
+          answer['longitude'] <= maxLong &&
+          answer['longitude'] >= minLong &&
+          answerTime.difference(new DateTime.now()).inHours <= 1 &&
+          answerTime.difference(new DateTime.now()).inHours >= -1) {
+        sum = sum + answer['answer'];
+        count = count + 1;
+      }
+    });
+    return count == 0 ? "No Data" : sum / count;
   }
 
   static Future sendAnswersToFireBase(List<Answer> answers) {

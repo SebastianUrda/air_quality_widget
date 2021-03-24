@@ -6,6 +6,8 @@ class Question {
 
   Question({this.uid, this.text, this.answer, this.possibleAnswers});
 
+  Question.short({this.uid, this.text, this.answer});
+
   factory Question.fromJson(Map<String, dynamic> parsedJson) {
     return new Question(
         uid: parsedJson['id'],
