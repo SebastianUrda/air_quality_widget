@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_air_quality_widget">
+    package="sebi.master.flutter_air_quality">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -8,7 +8,7 @@
         android:name="io.flutter.app.FlutterApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="Air Quality Info">
-        <receiver android:name=".AirQualityWidget">
+        <receiver android:name="sebi.master.flutter_air_quality.AirQualityWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -60,10 +60,10 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <service
-            android:name=".UpdatingJobIntentService"
+            android:name="sebi.master.flutter_air_quality.UpdatingJobIntentService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
-            android:name=".LocationUpdatesService"
+            android:name="sebi.master.flutter_air_quality.LocationUpdatesService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location" />

@@ -1,4 +1,4 @@
-package com.example.flutter_air_quality_widget;
+package sebi.master.flutter_air_quality;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;

@@ -1,9 +1,10 @@
-package com.example.flutter_air_quality_widget;
+package sebi.master.flutter_air_quality;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.preference.PreferenceManager;
+
 
 class Utils {
 

@@ -1,4 +1,4 @@
-package com.example.flutter_air_quality_widget;
+package sebi.master.flutter_air_quality;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -12,6 +12,7 @@ import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.JobIntentService;
+
 
 import java.text.DateFormat;
 import java.util.Date;

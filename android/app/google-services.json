@@ -63,6 +63,35 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273389163629:android:665eb496cc823eedc31b64",
+        "android_client_info": {
+          "package_name": "sebi.master.flutter_air_quality"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "273389163629-gqeldtfg06u2gb14f60ro8q1mko8phqk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASc4Eu5u1zfiBqIJiK7Fb6kQwdePh8wa8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273389163629-gqeldtfg06u2gb14f60ro8q1mko8phqk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

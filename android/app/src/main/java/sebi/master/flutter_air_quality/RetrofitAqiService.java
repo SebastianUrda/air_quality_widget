@@ -1,4 +1,4 @@
-package com.example.flutter_air_quality_widget;
+package sebi.master.flutter_air_quality;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
