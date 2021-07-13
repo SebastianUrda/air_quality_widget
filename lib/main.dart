@@ -1,22 +1,16 @@
 import 'dart:core';
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_air_quality_widget/api_data_display.dart';
-import 'package:flutter_air_quality_widget/register.dart';
-import 'package:flutter_air_quality_widget/table_with_legend.dart';
+
 
 import 'api.dart';
 import 'data_will_display.dart';
-import 'models/question.dart';
-import 'models/user_data.dart' as UserData;
+
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  String authenticationUID = await Api.getCurrentUserUIDOrLoginAnonymously();
   runApp(MaterialApp(
     title: 'Air Quality Index Application',
     theme: ThemeData(
@@ -24,7 +18,7 @@ main() async {
       visualDensity: VisualDensity.adaptivePlatformDensity,
     ),
     home: MyHomePage(
-        title: 'Air Quality Index Application', userUID: authenticationUID),
+        title: 'Air Quality Index Application'),
   ));
 }
 
@@ -88,20 +82,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: <Widget>[
-          PopupMenuButton<String>(
-            onSelected: contextMenuClick,
-            itemBuilder: (BuildContext context) {
-              return {'More Info', 'User Data'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
-            },
-          ),
-        ],
+        title: Text(widget.title)
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
@@ -341,38 +322,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   setLoading(bool state) => setState(() => {isLoading = state});
 
-  Future<void> contextMenuClick(String value) async {
-    switch (value) {
-      case 'More Info':
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    IndexTableAndLegend(latitude, longitude)));
-        break;
-      case 'User Data':
-        UserData.User user = await Api.getCurrentUserWithData(widget.userUID);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Register(
-                    userUID: widget.userUID,
-                    gender: user.gender,
-                    birthday: user.birthday,
-                    givenMail: user.email)));
-        break;
-    }
-  }
-
-  Future<List<Question>> getFireBaseQuestions() async {
-    QuerySnapshot response = await Api.getFireBaseGeneralQuestions();
-    List<Question> questions = new List<Question>();
-    response.docs.forEach((question) {
-      questions.add(new Question.short(
-          uid: question.id, text: question['text'], answer: 3));
-    });
-    return questions;
-  }
 
   determineColor(index) {
     if (index <= 50)
