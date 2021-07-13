@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ApiDataDisplay extends StatelessWidget {
   String latitude;
@@ -12,6 +13,10 @@ class ApiDataDisplay extends StatelessWidget {
   String humidity;
   String pressure;
   String temperature;
+  String epaNameLocal;
+  String epaUrlLocal;
+  String waqiNameLocal;
+  String waqiUrlLocal;
   Color indexColor = Colors.black;
 
   ApiDataDisplay(
@@ -24,6 +29,10 @@ class ApiDataDisplay extends StatelessWidget {
       this.humidity,
       this.pressure,
       this.temperature,
+      this.epaUrlLocal,
+      this.epaNameLocal,
+      this.waqiUrlLocal,
+      this.waqiNameLocal,
       this.indexColor);
 
   @override
@@ -82,6 +91,39 @@ class ApiDataDisplay extends StatelessWidget {
                   Text('Humidity: ' + humidity + " %"),
                 ]))),
         Padding(padding: EdgeInsets.only(top: 5.0)),
+        Card(
+            child: Padding(
+                padding: EdgeInsets.all(5.0),
+                child: Column(
+                  children: [
+                    Text('Data was provided by',
+                        style: new TextStyle(
+                          color: Colors.green,
+                          fontSize: 15.0,
+                        )),
+                    InkWell(
+                        child: new Text(epaNameLocal,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 12,
+                                decoration: TextDecoration.underline,
+                                color: Colors.blue)),
+                        onTap: () => launch(epaUrlLocal)),
+                    Text('Via ',
+                        style: new TextStyle(
+                          color: Colors.green,
+                          fontSize: 15.0,
+                        )),
+                    InkWell(
+                        child: new Text(waqiNameLocal,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontSize: 12,
+                                decoration: TextDecoration.underline,
+                                color: Colors.blue)),
+                        onTap: () => launch(waqiUrlLocal)),
+                  ],
+                ))),
       ],
     );
   }

@@ -61,6 +61,10 @@ public class RetrofitAsyncRequest {
                         String humidity = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("h").getString("v");
                         String pressure = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("p").getString("v");
                         String temperature = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("t").getString("v");
+                        String epaUrl = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(0).getString("url");
+                        String epaName = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(0).getString("name");
+                        String waqiUrl = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(1).getString("url");
+                        String waqiName = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(1).getString("name");
 
                         String dateString =
                                 DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date());
@@ -72,7 +76,13 @@ public class RetrofitAsyncRequest {
                         sharedPreferencesForAirQualityDataEditor.putString("humidity", humidity);
                         sharedPreferencesForAirQualityDataEditor.putString("pressure", pressure);
                         sharedPreferencesForAirQualityDataEditor.putString("temperature", temperature);
+                        sharedPreferencesForAirQualityDataEditor.putString("epa_url", epaUrl);
+                        sharedPreferencesForAirQualityDataEditor.putString("epa_name", epaName);
+                        sharedPreferencesForAirQualityDataEditor.putString("waqi_url", waqiUrl);
+                        sharedPreferencesForAirQualityDataEditor.putString("waqi_name", waqiName);
+
                         sharedPreferencesForAirQualityDataEditor.apply();
+
                         RemoteViews views = new RemoteViews(context.getPackageName(),
                                 R.layout.air_quality_widget);
                         String colour = getColourBasedOnIndex(airQualityIndex);
@@ -108,6 +118,10 @@ public class RetrofitAsyncRequest {
                         String humidity = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("h").getString("v");
                         String pressure = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("p").getString("v");
                         String temperature = json.getJSONObject("data").getJSONObject("iaqi").getJSONObject("t").getString("v");
+                        String epaUrl = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(0).getString("url");
+                        String epaName = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(0).getString("name");
+                        String waqiUrl = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(1).getString("url");
+                        String waqiName = json.getJSONObject("data").getJSONArray("attributions").getJSONObject(1).getString("name");
 
                         String dateString =
                                 DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date());
@@ -119,6 +133,11 @@ public class RetrofitAsyncRequest {
                         sharedPreferencesForAirQualityDataEditor.putString("humidity", humidity);
                         sharedPreferencesForAirQualityDataEditor.putString("pressure", pressure);
                         sharedPreferencesForAirQualityDataEditor.putString("temperature", temperature);
+                        sharedPreferencesForAirQualityDataEditor.putString("epa_url", epaUrl);
+                        sharedPreferencesForAirQualityDataEditor.putString("epa_name", epaName);
+                        sharedPreferencesForAirQualityDataEditor.putString("waqi_url", waqiUrl);
+                        sharedPreferencesForAirQualityDataEditor.putString("waqi_name", waqiName);
+
                         sharedPreferencesForAirQualityDataEditor.apply();
                         RemoteViews views = new RemoteViews(context.getPackageName(),
                                 R.layout.air_quality_widget);

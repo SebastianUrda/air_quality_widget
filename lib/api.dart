@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:convert';
-import 'dart:math' as math;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
@@ -10,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 
-import 'models/answer.dart';
 import 'models/user_data.dart' as UserData;
 
 class Api {
@@ -85,6 +83,10 @@ class Api {
         "dateString", () => DateFormat.jm().format(DateTime.now()));
     toDisplay.putIfAbsent("latitude", () => latitude);
     toDisplay.putIfAbsent("longitude", () => longitude);
+    toDisplay.putIfAbsent("epa_url", () =>  apiJsonResponse["data"]["attributions"][0]["url"]);
+    toDisplay.putIfAbsent("epa_name", () =>  apiJsonResponse["data"]["attributions"][0]["name"]);
+    toDisplay.putIfAbsent("waqi_url", () =>  apiJsonResponse["data"]["attributions"][1]["url"]);
+    toDisplay.putIfAbsent("waqi_name", () =>  apiJsonResponse["data"]["attributions"][1]["name"]);
     return toDisplay;
   }
 
@@ -185,50 +187,4 @@ class Api {
         .get();
   }
 
-  Future getAnswersAroundYou(latitude, longitude, distance) async {
-    //distance is in meters
-    double latRadian = double.parse(latitude) * math.pi / 180;
-    double degLatKm = 110.574235;
-    double degLongKm = 110.572833 * math.cos(latRadian);
-    double deltaLat = distance / 1000.0 / degLatKm;
-    double deltaLong = distance / 1000.0 / degLongKm;
-
-    double minLat = double.parse(latitude) - deltaLat;
-    double minLong = double.parse(longitude) - deltaLong;
-    double maxLat = double.parse(latitude) + deltaLat;
-    double maxLong = double.parse(longitude) + deltaLong;
-
-    QuerySnapshot response = await FirebaseFirestore.instance
-        .collection("anonymousUsersAnswers")
-        .where('questionUID', isEqualTo: "nvSlAhXm86X99vJrNU5p")
-        .get();
-
-    var sum = 0;
-    var count = 0;
-
-    response.docs.forEach((answer) {
-      DateTime answerTime = DateTime.parse(answer['date']);
-
-      if (answer['latitude'] <= maxLat &&
-          answer['latitude'] >= minLat &&
-          answer['longitude'] <= maxLong &&
-          answer['longitude'] >= minLong &&
-          answerTime.difference(new DateTime.now()).inHours <= 1 &&
-          answerTime.difference(new DateTime.now()).inHours >= -1) {
-        sum = sum + answer['answer'];
-        count = count + 1;
-      }
-    });
-    return count == 0 ? "No Data" : sum / count;
-  }
-
-  static Future sendAnswersToFireBase(List<Answer> answers) {
-    return FirebaseFirestore.instance.runTransaction((transaction) {
-      answers.forEach((answer) {
-        FirebaseFirestore.instance
-            .collection("anonymousUsersAnswers")
-            .add(answer.toJson());
-      });
-    });
-  }
 }

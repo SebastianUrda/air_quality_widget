@@ -176,6 +176,10 @@ public class MainActivity extends FlutterActivity implements
         data.put("humidity", sharedPreferences.getString("humidity", "error"));
         data.put("pressure", sharedPreferences.getString("pressure", "error"));
         data.put("temperature", sharedPreferences.getString("temperature", "error"));
+        data.put("epa_url", sharedPreferences.getString("epa_url", "error"));
+        data.put("epa_name", sharedPreferences.getString("epa_name", "error"));
+        data.put("waqi_url", sharedPreferences.getString("waqi_url", "error"));
+        data.put("waqi_name", sharedPreferences.getString("waqi_name", "error"));
         return data;
     }
 

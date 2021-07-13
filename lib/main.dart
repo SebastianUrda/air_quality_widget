@@ -5,7 +5,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_air_quality_widget/api_data_display.dart';
-import 'package:flutter_air_quality_widget/current_air_quality.dart';
 import 'package:flutter_air_quality_widget/register.dart';
 import 'package:flutter_air_quality_widget/table_with_legend.dart';
 
@@ -48,6 +47,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String humidity;
   String pressure;
   String temperature;
+  String epaUrl;
+  String epaName;
+  String waqiUrl;
+  String waqiName;
   Color indexColor = Colors.black;
   bool display = false;
   bool isLoading = false;
@@ -120,38 +123,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             humidity,
                             pressure,
                             temperature,
+                            epaUrl,
+                            epaName,
+                            waqiUrl,
+                            waqiName,
                             indexColor)
                         : DataWillDisplay(),
-                    Card(
-                      child: Column(
-                        children: [
-                          Text("Other users appreciate the air as:"),
-                          Text(rating,
-                              style: new TextStyle(
-                                  color: Colors.green, fontSize: 25.0)),
-                          Padding(padding: EdgeInsets.only(top: 4.0)),
-                          OutlinedButton(
-                              // minWidth: MediaQuery.of(context).size.width,
-                              // padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
-                              onPressed: () {
-                                getFireBaseQuestions().then((questions) => {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  CurrentAirQualityQuiz(
-                                                      questions: questions,
-                                                      userUID: widget.userUID)))
-                                    });
-                              },
-                              child: Text("Take survey",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold))),
-                        ],
-                      ),
-                    ),
                     Card(
                         child: Column(
                       children: [
@@ -207,6 +184,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     String humidityFound;
     String pressureFound;
     String temperatureFound;
+    String epaNameLocal;
+    String epaUrlLocal;
+    String waqiNameLocal;
+    String waqiUrlLocal;
     api
         .getWaqiValuesMap()
         .then((nativeAppData) => {
@@ -219,25 +200,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   (readLatitude == null ||
                       readLatitude.isEmpty ||
                       readLatitude == 'error'))
-                {readLongitude = 'NaN', readLatitude = 'NaN'}
-              else
-                {
-                  api
-                      .getAnswersAroundYou(readLatitude, readLongitude, 1000)
-                      .then((returnedRating) => {
-                            setState(() {
-                              rating = returnedRating == "No Data"
-                                  ? returnedRating.toString()
-                                  : returnedRating.toString() + "/5.0";
-                            })
-                          })
-                },
+                {readLongitude = 'NaN', readLatitude = 'NaN'},
               dateString = nativeAppData["dateString"],
               stationAddressFound = nativeAppData["stationAddress"],
               stationUpdateTimeFound = nativeAppData["stationUpdateTime"],
               humidityFound = nativeAppData["humidity"],
               pressureFound = nativeAppData["pressure"],
               temperatureFound = nativeAppData["temperature"],
+              epaNameLocal = nativeAppData["epa_name"],
+              epaUrlLocal = nativeAppData["epa_url"],
+              waqiNameLocal = nativeAppData["waqi_name"],
+              waqiUrlLocal = nativeAppData["waqi_url"],
               if (aqiIndex != null &&
                   aqiIndex.length > 0 &&
                   aqiIndex.isNotEmpty &&
@@ -254,6 +227,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     humidity = humidityFound;
                     pressure = pressureFound;
                     temperature = temperatureFound;
+                    epaName = epaNameLocal;
+                    epaUrl = epaUrlLocal;
+                    waqiName = waqiNameLocal;
+                    waqiUrl = waqiUrlLocal;
                     display = true;
                     isLoading = false;
                   })
@@ -283,37 +260,33 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     String humidityFound;
     String pressureFound;
     String temperatureFound;
+    String epaNameLocal;
+    String epaUrlLocal;
+    String waqiNameLocal;
+    String waqiUrlLocal;
     api
         .getAirQualityIndex(latitude, longitude)
-        .then((nativeAppData) => {
-              aqiIndex = nativeAppData["airQualityIndex"],
-              readLatitude = nativeAppData["latitude"],
-              readLongitude = nativeAppData["longitude"],
+        .then((apiResponseData) => {
+              aqiIndex = apiResponseData["airQualityIndex"],
+              readLatitude = apiResponseData["latitude"],
+              readLongitude = apiResponseData["longitude"],
               if ((readLongitude == null ||
                       readLongitude.isEmpty ||
                       readLongitude == 'error') &&
                   (readLatitude == null ||
                       readLatitude.isEmpty ||
                       readLatitude == 'error'))
-                {readLongitude = 'NaN', readLatitude = 'NaN'}
-              else
-                {
-                  api
-                      .getAnswersAroundYou(readLatitude, readLongitude, 1000)
-                      .then((returnedRating) => {
-                            setState(() {
-                              rating = returnedRating == "No Data"
-                                  ? returnedRating.toString()
-                                  : returnedRating.toString() + "/5.0";
-                            })
-                          })
-                },
-              dateString = nativeAppData["dateString"],
-              stationAddressFound = nativeAppData["stationAddress"],
-              stationUpdateTimeFound = nativeAppData["stationUpdateTime"],
-              humidityFound = nativeAppData["humidity"],
-              pressureFound = nativeAppData["pressure"],
-              temperatureFound = nativeAppData["temperature"],
+                {readLongitude = 'NaN', readLatitude = 'NaN'},
+              dateString = apiResponseData["dateString"],
+              stationAddressFound = apiResponseData["stationAddress"],
+              stationUpdateTimeFound = apiResponseData["stationUpdateTime"],
+              humidityFound = apiResponseData["humidity"],
+              pressureFound = apiResponseData["pressure"],
+              temperatureFound = apiResponseData["temperature"],
+              epaNameLocal = apiResponseData["epa_name"],
+              epaUrlLocal = apiResponseData["epa_url"],
+              waqiNameLocal = apiResponseData["waqi_name"],
+              waqiUrlLocal = apiResponseData["waqi_url"],
               if (aqiIndex != null &&
                   aqiIndex.length > 0 &&
                   aqiIndex.isNotEmpty &&
@@ -330,6 +303,10 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     humidity = humidityFound;
                     pressure = pressureFound;
                     temperature = temperatureFound;
+                    epaName = epaNameLocal;
+                    epaUrl = epaUrlLocal;
+                    waqiName = waqiNameLocal;
+                    waqiUrl = waqiUrlLocal;
                     display = true;
                     isLoading = false;
                   })
