@@ -50,7 +50,7 @@ class ApiDataDisplay extends StatelessWidget {
                   style: new TextStyle(color: indexColor, fontSize: 50.0)),
               Tooltip(
                 message:
-                    'Data displayed might be less accurate at first due to missing permission to access the location.\nIf you encounter such issues please provide permission and refresh the application several times.',
+                    'Data displayed might be less accurate at first due to missing permission to access the location.\nIf you encounter such issues please provide permission and swipe down to refresh the application several times.',
                 child: FlatButton(
                   minWidth: 20,
                   child: Icon(

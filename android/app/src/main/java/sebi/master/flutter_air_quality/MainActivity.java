@@ -99,6 +99,7 @@ public class MainActivity extends FlutterActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         myReceiver = new MyReceiver();
+        makeApiCall();
         if (!checkPermissions()) {
             requestPermissions();
         }

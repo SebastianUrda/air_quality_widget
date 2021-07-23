@@ -119,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             onPressed: () {
                               updateLocationAndRefreshState();
                             },
-                            child: Text("Set current location",
+                            child: Text("Set current location as default",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     color: Colors.green,
@@ -131,7 +131,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             onPressed: () {
                               api.startService();
                             },
-                            child: Text("Start location updating service",
+                            child: Text("Start location based updating service",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                     color: Colors.green,
